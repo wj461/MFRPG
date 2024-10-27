@@ -36,14 +36,15 @@ public class GameManager : MonoBehaviour
     public ButtonManager buttonManager;
     public GameObject bagController;
     
-    public Sprite testSprite;
     void Awake() {
-        DoSceneInit();
+        Debug.Log("Awake");
         if (gameManager == null) {
             gameManager = this;
             DontDestroyOnLoad(gameObject);
+            DoSceneInit();
         }
         else{
+            DoSceneInit();
             Destroy(gameObject);
         }
     }
@@ -53,10 +54,10 @@ public class GameManager : MonoBehaviour
         string name = SceneManager.GetActiveScene().name;
         currentScene = sceneName.FirstOrDefault(x => x.Value == name).Key;
 
-        TMP_Text NowRound = GameObject.Find("Now Round").GetComponent<TMP_Text>();
-        NowRound.text = round.ToString();
-        print("start");
-        testSprite = Resources.Load<Sprite>("image/youkai_jinmenken");
+        if (currentScene == Scene.InGame){
+            TMP_Text NowRound = GameObject.Find("Now Round").GetComponent<TMP_Text>();
+            NowRound.text = round.ToString();
+        }
     }
 
     // Update is called once per frame
@@ -120,6 +121,20 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(sceneName[nextScene]);
     }
     private void DoSceneInit(){
+        switch (gameManager.currentScene){
+            case Scene.Welcome:
+                Debug.Log("Welcome init");
+                break;
+            case Scene.NewGame:
+                Debug.Log("NewGame init");
+                break;
+            case Scene.InGame:
+                Debug.Log("InGame init");
+                gameManager.bagController = GameObject.Find("Canvas/Bag");
+                break;
+            default:
+                break;
+        }
 
     }
 }

@@ -36,6 +36,8 @@ public class BagController : MonoBehaviour
 
     private int currentSelectedIndex = -1;
     // Start is called before the first frame update
+
+
     void Start()
     {
         // read item data
@@ -56,6 +58,7 @@ public class BagController : MonoBehaviour
         currentBagItems.Add(CreateBagItem(itemBaseData[0]));
         currentBagItems.Add(CreateBagItem(itemBaseData[1]));
         currentBagItems.Add(CreateBagItem(itemBaseData[0]));
+        this.gameObject.SetActive(false);
     }
 
     GameObject CreateMapItem(ItemDTO item)
@@ -125,13 +128,19 @@ public class BagController : MonoBehaviour
         bagState = BagState.Close;
         currentSelectedIndex = -1;
         gameObject.SetActive(false);
+        cursorGameObject.SetActive(false);
     }
 
     public void Open(){
         bagState = BagState.Open;
         currentSelectedIndex = 0;
-        if (IsCurrentSelectedIndexValid()) gameObject.SetActive(true);
-        else Close();
+        if (IsCurrentSelectedIndexValid()) {
+            gameObject.SetActive(true);
+            cursorGameObject.SetActive(true);
+        }
+        else {
+            Close();
+        }
     }
 
     public void BagPutItem()
