@@ -5,7 +5,14 @@ using UnityEngine.Tilemaps;
 
 public class GridController : MonoBehaviour
 {
-    public Tilemap tilemap;
+    private Tilemap tilemap;
+    private Grid grid;
+
+    void Awake()
+    {
+        grid = gameObject.GetComponent<Grid>();
+        tilemap = GameObject.Find("Tilemap").GetComponent<Tilemap>();
+    }
 
     void Start()
     {
@@ -30,16 +37,17 @@ public class GridController : MonoBehaviour
         }
     }
 
-    public (Vector3Int, Vector3Int) Move(GameObject objectToMove, Vector3Int targetGridPosition, Vector3Int previousGridPosition)
+    public void Move(GameObject objectToMove, Vector2Int relationGridPosition)
     {
-        Debug.Log("Selected tile: " + targetGridPosition + previousGridPosition);
-        Vector3Int currentGridPosition = targetGridPosition;
-        if (IsOutOfBound(currentGridPosition)) currentGridPosition = previousGridPosition;
-        Debug.Log("current tile: " + currentGridPosition);
+        Vector3Int currentGridPosition = tilemap.WorldToCell(objectToMove.transform.position);
+        Vector3Int targetGridPosition = new Vector3Int(currentGridPosition.x + relationGridPosition.x, currentGridPosition.y + relationGridPosition.y, currentGridPosition.z);
 
-        Vector3 targetWorldPosition = tilemap.CellToWorld(currentGridPosition);
+        if (IsOutOfBound(targetGridPosition)) {
+            return;
+        }
+
+        Vector3 targetWorldPosition = tilemap.CellToWorld(targetGridPosition);
         objectToMove.transform.position = targetWorldPosition;
-        previousGridPosition = currentGridPosition;
-        return (currentGridPosition, previousGridPosition);
     }
+
 }

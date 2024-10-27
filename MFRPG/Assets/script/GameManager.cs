@@ -31,9 +31,12 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     int round = 1;
 
+
     private static GameManager gameManager = null;
     public ButtonManager buttonManager;
-
+    public GameObject bagController;
+    
+    public Sprite testSprite;
     void Awake() {
         DoSceneInit();
         if (gameManager == null) {
@@ -53,6 +56,7 @@ public class GameManager : MonoBehaviour
         TMP_Text NowRound = GameObject.Find("Now Round").GetComponent<TMP_Text>();
         NowRound.text = round.ToString();
         print("start");
+        testSprite = Resources.Load<Sprite>("image/youkai_jinmenken");
     }
 
     // Update is called once per frame
@@ -93,6 +97,17 @@ public class GameManager : MonoBehaviour
                     TMP_Text NowRound = GameObject.Find("Now Round").GetComponent<TMP_Text>();
                     NowRound.text = round.ToString();
                     round++;
+                }
+
+                if (Input.GetKeyDown("e")){
+                    BagController bagControllerC = bagController.GetComponent<BagController>();
+                    if (bagControllerC.bagState == BagState.Close){
+                        bagControllerC.Open();
+                    }
+                    else{
+                        bagControllerC.Close();
+                    }
+
                 }
                 break;
             default:
