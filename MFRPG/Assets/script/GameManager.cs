@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
         {Scene.InGame, "inGame"}
     };
 
-    Player[] players = {new Player("A", 10, 20), new Player("B", 20, 30) };
+    Player[] players = {};
     [SerializeField]
     public Scene currentScene;
 
@@ -32,18 +32,21 @@ public class GameManager : MonoBehaviour
     int round = 1;
 
 
-    private static GameManager gameManager = null;
+    private static GameManager instance = null;
     public ButtonManager buttonManager;
-    public GameObject bagController;
-    
+    public BagController bagController;
+
     void Awake() {
         Debug.Log("Awake");
-        if (gameManager == null) {
-            gameManager = this;
+        //get current scene name
+        currentScene = SceneManager.GetActiveScene().name == "welcome" ? Scene.Welcome : Scene.NewGame;
+        if (instance == null) {
+            instance = this;
             DontDestroyOnLoad(gameObject);
             DoSceneInit();
         }
         else{
+            instance.currentScene = currentScene;
             DoSceneInit();
             Destroy(gameObject);
         }
@@ -90,29 +93,47 @@ public class GameManager : MonoBehaviour
 
                 TMP_Text NowAction = GameObject.Find("Now Action").GetComponent<TMP_Text>();
                 NowAction.text = currentAction;
+                TMP_Text ThiefHP = GameObject.Find("Thief HP").GetComponent<TMP_Text>();
+                ThiefHP.text = ThiefController.instance._hp.ToString();
 
-                if (round > 10){
+                if (bagController.currentBagItems.Count == 0)
+                {
+                    ThiefController.instance.OpenMove();
+                }
+
+                if (round > 10 || ThiefController.instance._hp <= 0){
                     ChangeToNextScene(Scene.Welcome);
                 }
-                else if (Input.GetKeyDown("p")){
+
+                if (Input.GetKeyDown("p")){
                     TMP_Text NowRound = GameObject.Find("Now Round").GetComponent<TMP_Text>();
                     NowRound.text = round.ToString();
                     round++;
                 }
-
-                if (Input.GetKeyDown("e")){
-                    BagController bagControllerC = bagController.GetComponent<BagController>();
-                    if (bagControllerC.bagState == BagState.Close){
-                        bagControllerC.Open();
-                    }
-                    else{
-                        bagControllerC.Close();
-                    }
-
+                else if (Input.GetKeyDown("e")){
+                    SwitchBag();
+                }
+                else if (Input.GetKeyDown("r")){
+                    Dice.instance.RollDice();
+                }
+                else if (Input.GetKeyDown("t")){
+                    ThiefController.instance._cost = Dice.instance.StopRollDice();
                 }
                 break;
             default:
                 break;
+        }
+    }
+
+    public void SwitchBag(){
+
+        if (bagController.bagState == BagState.Close){
+            ThiefController.instance.CloseMove();
+            bagController.Open();
+        }
+        else{
+            ThiefController.instance.OpenMove();
+            bagController.Close();
         }
     }
 
@@ -121,7 +142,7 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(sceneName[nextScene]);
     }
     private void DoSceneInit(){
-        switch (gameManager.currentScene){
+        switch (instance.currentScene){
             case Scene.Welcome:
                 Debug.Log("Welcome init");
                 break;
@@ -130,7 +151,7 @@ public class GameManager : MonoBehaviour
                 break;
             case Scene.InGame:
                 Debug.Log("InGame init");
-                gameManager.bagController = GameObject.Find("Canvas/Bag");
+                instance.bagController = GameObject.Find("Canvas/Bag").GetComponent<BagController>();
                 break;
             default:
                 break;

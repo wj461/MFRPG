@@ -11,6 +11,7 @@ public class ItemDTO
     public float probability { get; set; }
     public int catLike { get; set; }
     public string imagePath { get; set; }
+    public int ATK { get; set; }
 }
 
 public enum BagState
@@ -51,6 +52,7 @@ public class BagController : MonoBehaviour
             item.probability = float.Parse(row[2]);
             item.catLike = int.Parse(row[3]);
             item.imagePath = row[4];
+            item.ATK = int.Parse(row[5]);
 
             itemBaseData.Add(item);
         }
@@ -65,7 +67,7 @@ public class BagController : MonoBehaviour
     {
         GameObject itemObject = Instantiate(mapItemPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         Item itemComponent = itemObject.GetComponent<Item>();
-        itemComponent.setItem(item.name, item.cost, item.probability, item.catLike, item.imagePath, item, true);
+        itemComponent.setItem(item.name, item.cost, item.probability, item.catLike, item.imagePath, item, item.ATK, true);
         return itemObject;
     }
 
@@ -73,7 +75,7 @@ public class BagController : MonoBehaviour
     {
         GameObject itemObject = Instantiate(bagItemPrefab, transform);
         Item itemComponent = itemObject.GetComponent<Item>();
-        itemComponent.setItem(item.name, item.cost, item.probability, item.catLike, item.imagePath, item);
+        itemComponent.setItem(item.name, item.cost, item.probability, item.catLike, item.imagePath, item, item.ATK);
         return itemObject;
     }
 

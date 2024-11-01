@@ -6,20 +6,21 @@ using UnityEditor.PackageManager;
 using UnityEditor.Rendering;
 using UnityEngine;
 
-public class Player
+public interface Player
 {
     // Start is called before the first frame update
-    private string _playerName {set; get;}
-    private int _hp {set; get;}
-    private int _atk {set; get;}
+    string _playerName { get; set; }
+    int _hp { get; set; }
+    int _cost { get; set; }
 
-    Item[] itemList;
-
-    PlayerBuff[] buffList;
+    Item[] _items { get; set; }
+    PlayerBuff[] _buffs { get; set; }
     
-    public Player(string name, int hp, int atk){
+    public void Player(string name, int hp, int cost,  Item[] items, PlayerBuff[] buffs){
         _playerName = name;
         _hp = hp;
-        _atk = atk;
+        _cost = cost;
+        _items = items;
+        _buffs = buffs;
     }
 }

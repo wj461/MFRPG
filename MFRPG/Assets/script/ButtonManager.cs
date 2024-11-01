@@ -52,6 +52,14 @@ public class ButtonManager : MonoBehaviour
         }
     }
 
+    void OnDestory()
+    {
+        foreach (Button btn in buttonList)
+        {
+            btn.onClick.RemoveAllListeners();
+        }
+    }
+
     private void OnButtonClick(string buttonName)
     {
         clickedButtonName = buttonName;
