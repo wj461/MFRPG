@@ -20,14 +20,17 @@ public class CatController : CanMove
     {
         if (Input.GetKeyDown("c")){
             GameObject mostLikeItem = FindMostLikeItem();
+            Vector3Int moveDirection = new Vector3Int(0, 0, 0);
             if (mostLikeItem != null)
             {
-                GridController.instance.MoveAlso(this.gameObject, GridController.instance.GetGridPosition(mostLikeItem));
+                moveDirection = GridController.instance.GetGridPosition(mostLikeItem);
             }
             else
             {
-                GridController.instance.MoveAlso(this.gameObject, GetRandomGridPosition());
+                moveDirection = GetRandomGridPosition();
             }
+            List<Vector3Int> path = GridController.instance.FindPathBFS(GridController.instance.GetGridPosition(this.gameObject), moveDirection);
+            StartCoroutine(GridController.instance.MoveCorutine(this.gameObject, path));
         }
     }
 

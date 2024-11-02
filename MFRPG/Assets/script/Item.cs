@@ -35,7 +35,8 @@ public class Item : MonoBehaviour
 
     public void PutItemInMap(Vector3 targetWorldPosition)
     {
-        // GameManager.currentPlayer._cost -= _cost;
+        GameManager.instance.currentPlayer._cost -= _itemDTO.cost;
+        // ThiefController.instance._cost -= _itemDTO.cost;
         this.transform.position = targetWorldPosition;
     }
 

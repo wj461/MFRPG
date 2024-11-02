@@ -8,6 +8,7 @@ using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
@@ -21,8 +22,8 @@ public class GameManager : MonoBehaviour
         {Scene.InGame, "inGame"}
     };
 
-    Player[] players = {ThiefController.instance};
-    public static Player currentPlayer = null;
+    List<Player> players = new List<Player>();
+    public Player currentPlayer = null;
     public Scene currentScene;
 
     [SerializeField]
@@ -33,14 +34,14 @@ public class GameManager : MonoBehaviour
     int round = 1;
 
 
-    private static GameManager instance = null;
+    public static GameManager instance = null;
     public ButtonManager buttonManager;
-    public BagController bagController;
 
     void Awake() {
         Debug.Log("Awake");
         //get current scene name
-        currentScene = SceneManager.GetActiveScene().name == "welcome" ? Scene.Welcome : Scene.NewGame;
+        string name = SceneManager.GetActiveScene().name;
+        currentScene = sceneName.FirstOrDefault(x => x.Value == name).Key;
         if (instance == null) {
             instance = this;
             DontDestroyOnLoad(gameObject);
@@ -55,9 +56,6 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        string name = SceneManager.GetActiveScene().name;
-        currentScene = sceneName.FirstOrDefault(x => x.Value == name).Key;
-
         if (currentScene == Scene.InGame){
             TMP_Text NowRound = GameObject.Find("Now Round").GetComponent<TMP_Text>();
             NowRound.text = round.ToString();
@@ -92,23 +90,14 @@ public class GameManager : MonoBehaviour
                 }
                 // not forget to del
 
-                TMP_Text NowAction = GameObject.Find("Now Action").GetComponent<TMP_Text>();
-                NowAction.text = currentAction;
-                TMP_Text ThiefHP = GameObject.Find("Thief HP").GetComponent<TMP_Text>();
-                ThiefHP.text = ThiefController.instance._hp.ToString();
-
-                if (bagController.currentBagItems.Count == 0)
-                {
-                    ThiefController.instance.OpenMove();
-                }
+                SetUI();
+                ThiefAction();
 
                 if (round > 10 || ThiefController.instance._hp <= 0){
                     ChangeToNextScene(Scene.Welcome);
                 }
 
                 if (Input.GetKeyDown("p")){
-                    TMP_Text NowRound = GameObject.Find("Now Round").GetComponent<TMP_Text>();
-                    NowRound.text = round.ToString();
                     round++;
                 }
                 else if (Input.GetKeyDown("e")){
@@ -121,7 +110,7 @@ public class GameManager : MonoBehaviour
                     ThiefController.instance._cost = Dice.instance.StopRollDice();
                 }
                 else if (Input.GetKeyDown("i")){
-                    bagController.AddItem("CatCan");
+                    BagController.instance.AddItem("CatCan");
                 }
                 break;
             default:
@@ -130,15 +119,35 @@ public class GameManager : MonoBehaviour
     }
 
     public void SwitchBag(){
-
-        if (bagController.bagState == BagState.Close){
+        if (BagController.instance.bagState == BagState.Close){
             ThiefController.instance.CloseMove();
-            bagController.Open();
+            BagController.instance.Open();
         }
         else{
             ThiefController.instance.OpenMove();
-            bagController.Close();
+            BagController.instance.Close();
         }
+    }
+
+    public void ThiefAction(){
+        if (BagController.instance.currentBagItems.Count == 0 && ThiefController.instance._cost > 0){
+            BagController.instance.Close();
+            ThiefController.instance.OpenMove();
+        }
+        else if (ThiefController.instance._cost <= 0){
+            ThiefController.instance.CloseMove();
+        }
+        else if (BagController.instance.bagState == BagState.Close){
+            ThiefController.instance.OpenMove();
+        }
+    }
+
+    public void SetUI(){
+        TMP_Text NowAction = GameObject.Find("Now Action").GetComponent<TMP_Text>();
+        NowAction.text = currentAction;
+
+        TMP_Text NowRound = GameObject.Find("Now Round").GetComponent<TMP_Text>();
+        NowRound.text = round.ToString();
     }
 
     private void ChangeToNextScene(Scene nextScene){
@@ -154,8 +163,8 @@ public class GameManager : MonoBehaviour
                 Debug.Log("NewGame init");
                 break;
             case Scene.InGame:
-                Debug.Log("InGame init");
-                instance.bagController = GameObject.Find("Canvas/Bag").GetComponent<BagController>();
+                instance.players.Add(ThiefController.instance);
+                ThiefController.instance.SetPlayer("Thief", 10, 0, new List<Item>(), new List<PlayerBuff>());
                 currentPlayer = players[0];
                 break;
             default:

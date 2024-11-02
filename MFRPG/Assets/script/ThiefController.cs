@@ -16,8 +16,8 @@ public class ThiefController : CanMove, Player
     public string _playerName { get; set; }
     public int _hp { get; set; }
     public int _cost { get; set; }
-    public Item[] _items { get; set; }
-    public PlayerBuff[] _buffs { get; set; }
+    public List<Item> _items { get; set; }
+    public List<PlayerBuff> _buffs { get; set; }
     public Vector3Int start = new Vector3Int(0, 0, 0);
 
     public int catLike = -100;
@@ -37,7 +37,7 @@ public class ThiefController : CanMove, Player
 
     public Image[] costs = new Image[6];
 
-    public void Player(string name, int hp, int cost, Item[] items, PlayerBuff[] buffs)
+    public void SetPlayer(string name, int hp, int cost, List<Item> items, List<PlayerBuff> buffs)
     {
         _playerName = name;
         _hp = hp;
@@ -64,7 +64,7 @@ public class ThiefController : CanMove, Player
         GridController.instance.MoveAlso(movePreviewMid, start);
         ReSetMovePreview();
         _hp = 10;
-        _cost = 6;
+        _cost = 0;
         for (int i = 1; i < 11; i++)
         {
             hearts[i-1] = GameObject.Find("Heart" + i).GetComponent<Image>();
@@ -82,7 +82,7 @@ public class ThiefController : CanMove, Player
     {
         UpdateHeart();
         UpdateCost();
-        if (thiefState == ThiefState.CanMove && _cost > 0)
+        if (thiefState == ThiefState.CanMove)
         {
             if (Input.GetKeyDown("w")){
                 GridController.instance.Move(this.gameObject, new Vector2Int(0, 1));

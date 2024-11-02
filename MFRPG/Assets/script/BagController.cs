@@ -22,6 +22,7 @@ public enum BagState
 
 public class BagController : MonoBehaviour
 {
+    public static BagController instance;
     public int maxBagSize = 4;
     public GameObject cursorGameObject;
     public Tilemap tilemap;
@@ -37,6 +38,10 @@ public class BagController : MonoBehaviour
     private int currentSelectedIndex = -1;
     // Start is called before the first frame update
 
+    void Awake()
+    {
+        instance = this;
+    }
 
     void Start()
     {
@@ -145,18 +150,17 @@ public class BagController : MonoBehaviour
 
     public void BagPutItemInMap()
     {
-        if (!IsCursorCanPutItem()){
+        GameObject currentMapItem = CreateMapItem(GetItemComponent(currentBagItems[currentSelectedIndex])._itemDTO);
+        Item currentMapItemScrip = GetItemComponent(currentMapItem);
+        if (!IsCursorCanPutItem() || GameManager.instance.currentPlayer._cost < currentMapItemScrip._itemDTO.cost){
+            Destroy(currentMapItem);
             return;
         }
 
-        GameObject currentMapItem = CreateMapItem(GetItemComponent(currentBagItems[currentSelectedIndex])._itemDTO);
         var targetWorldPosition = cursorGameObject.transform.position;
-        if (!CanPutItem(targetWorldPosition)){
-            return;
-        }
 
         GridController.instance.currentMapItems.Add(currentMapItem);
-        GetItemComponent(currentMapItem).PutItemInMap(targetWorldPosition);
+        currentMapItemScrip.PutItemInMap(targetWorldPosition);
 
         // After put then del
         Destroy(currentBagItems[currentSelectedIndex]);
