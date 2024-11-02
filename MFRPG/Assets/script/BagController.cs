@@ -22,6 +22,7 @@ public enum BagState
 
 public class BagController : MonoBehaviour
 {
+    public int maxBagSize = 4;
     public GameObject cursorGameObject;
     public Tilemap tilemap;
     public GameObject mapItemPrefab;
@@ -29,8 +30,6 @@ public class BagController : MonoBehaviour
     public TextAsset itemDataTextAsset;
     public List<ItemDTO> itemBaseData = new List<ItemDTO>();
     public List<GameObject> currentBagItems = new List<GameObject>();
-    public List<GameObject> currentMapItemsInMap = new List<GameObject>();
-
     private Color selectedColor = new Color(0.5f, 0.5f, 0.5f, 1.0f);
 
     public BagState bagState = BagState.Close;
@@ -67,7 +66,7 @@ public class BagController : MonoBehaviour
     {
         GameObject itemObject = Instantiate(mapItemPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         Item itemComponent = itemObject.GetComponent<Item>();
-        itemComponent.setItem(item.name, item.cost, item.probability, item.catLike, item.imagePath, item, item.ATK, true);
+        itemComponent.setItem(item, true);
         return itemObject;
     }
 
@@ -75,7 +74,7 @@ public class BagController : MonoBehaviour
     {
         GameObject itemObject = Instantiate(bagItemPrefab, transform);
         Item itemComponent = itemObject.GetComponent<Item>();
-        itemComponent.setItem(item.name, item.cost, item.probability, item.catLike, item.imagePath, item, item.ATK);
+        itemComponent.setItem(item);
         return itemObject;
     }
 
@@ -98,29 +97,28 @@ public class BagController : MonoBehaviour
     {
         if (BagState.Open == bagState)
         {
-            if (currentBagItems.Count == 0)
-            {
+            if (IsCurrentSelectedIndexValid()){
+                currentBagItems[currentSelectedIndex].GetComponent<Image>().color = selectedColor;
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    BagPutItemInMap();
+                }
+
+                if (Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    currentBagItems[currentSelectedIndex].GetComponent<Image>().color = Color.white;
+                    currentSelectedIndex = (currentSelectedIndex - 1 + currentBagItems.Count) % currentBagItems.Count;
+                }
+                else if (Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    currentBagItems[currentSelectedIndex].GetComponent<Image>().color = Color.white;
+                    currentSelectedIndex = (currentSelectedIndex + 1) % currentBagItems.Count;
+                }
+            }
+            else{
                 Close();
             }
 
-            if (IsCurrentSelectedIndexValid()){
-                currentBagItems[currentSelectedIndex].GetComponent<Image>().color = selectedColor;
-            }
-            if (Input.GetKeyDown(KeyCode.Space) && IsCurrentSelectedIndexValid())
-            {
-                BagPutItem();
-            }
-
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                if(IsCurrentSelectedIndexValid()) currentBagItems[currentSelectedIndex].GetComponent<Image>().color = Color.white;
-                currentSelectedIndex = (currentSelectedIndex - 1 + currentBagItems.Count) % currentBagItems.Count;
-            }
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                if (IsCurrentSelectedIndexValid()) currentBagItems[currentSelectedIndex].GetComponent<Image>().color = Color.white;
-                currentSelectedIndex = (currentSelectedIndex + 1) % currentBagItems.Count;
-            }
         }
         
     }
@@ -145,15 +143,19 @@ public class BagController : MonoBehaviour
         }
     }
 
-    public void BagPutItem()
+    public void BagPutItemInMap()
     {
+        if (!IsCursorCanPutItem()){
+            return;
+        }
+
         GameObject currentMapItem = CreateMapItem(GetItemComponent(currentBagItems[currentSelectedIndex])._itemDTO);
         var targetWorldPosition = cursorGameObject.transform.position;
         if (!CanPutItem(targetWorldPosition)){
             return;
         }
 
-        // currentMapItemsInMap.Add(currentMapItem);
+        GridController.instance.currentMapItems.Add(currentMapItem);
         GetItemComponent(currentMapItem).PutItemInMap(targetWorldPosition);
 
         // After put then del
@@ -162,27 +164,30 @@ public class BagController : MonoBehaviour
         currentSelectedIndex = 0;
     }
 
-    public void AddItem(Item item)
+    public void AddItem(string itemName)
     {
-        // for (int i = 0; i < currentItems.Length; i++)
-        // {
-        //     if (currentItems[i] == null)
-        //     {
-        //         currentItems[i] = item;
-        //         break;
-        //     }
-        // }
+        foreach (ItemDTO item in itemBaseData)
+        {
+            if (item.name == itemName)
+            {
+                currentBagItems.Add(CreateBagItem(item));
+                break;
+            }
+        }
+    }
+    
+    public bool IsCursorCanPutItem()
+    {
+        BoxCollider2D boxCollider = cursorGameObject.GetComponent<BoxCollider2D>();
+        Collider2D[] hits = Physics2D.OverlapBoxAll(boxCollider.bounds.center, boxCollider.bounds.size, 0);
+        foreach (var hit in hits)
+        {
+            if (hit.gameObject.name != "Cursor")
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
-    public void RemoveItem(Item item)
-    {
-        // for (int i = 0; i < currentItems.Length; i++)
-        // {
-        //     if (currentItems[i] == item)
-        //     {
-        //         currentItems[i] = null;
-        //         break;
-        //     }
-        // }
-    }
 }

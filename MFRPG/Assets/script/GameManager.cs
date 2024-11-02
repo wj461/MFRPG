@@ -21,12 +21,13 @@ public class GameManager : MonoBehaviour
         {Scene.InGame, "inGame"}
     };
 
-    Player[] players = {};
-    [SerializeField]
+    Player[] players = {ThiefController.instance};
+    public static Player currentPlayer = null;
     public Scene currentScene;
 
     [SerializeField]
     string currentAction = "";
+
 
     [SerializeField]
     int round = 1;
@@ -119,6 +120,9 @@ public class GameManager : MonoBehaviour
                 else if (Input.GetKeyDown("t")){
                     ThiefController.instance._cost = Dice.instance.StopRollDice();
                 }
+                else if (Input.GetKeyDown("i")){
+                    bagController.AddItem("CatCan");
+                }
                 break;
             default:
                 break;
@@ -152,6 +156,7 @@ public class GameManager : MonoBehaviour
             case Scene.InGame:
                 Debug.Log("InGame init");
                 instance.bagController = GameObject.Find("Canvas/Bag").GetComponent<BagController>();
+                currentPlayer = players[0];
                 break;
             default:
                 break;

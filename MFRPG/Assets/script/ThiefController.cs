@@ -20,6 +20,8 @@ public class ThiefController : CanMove, Player
     public PlayerBuff[] _buffs { get; set; }
     public Vector3Int start = new Vector3Int(0, 0, 0);
 
+    public int catLike = -100;
+
     public ThiefState thiefState = ThiefState.CanMove;
 
 
@@ -118,7 +120,7 @@ public class ThiefController : CanMove, Player
 
     void ReSetMovePreview()
     {
-        var currentPosition = GridController.instance.GetPosition(this.gameObject);
+        var currentPosition = GridController.instance.GetGridPosition(this.gameObject);
         var neighborPath = GridController.instance.GetNeighborsArray(currentPosition);
         for (int i = 0; i < 4; i++)
         {

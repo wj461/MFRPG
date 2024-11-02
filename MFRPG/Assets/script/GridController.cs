@@ -9,6 +9,8 @@ public class GridController : MonoBehaviour
     public static GridController instance;
     private Tilemap tilemap;
 
+    public List<GameObject> currentMapItems = new List<GameObject>();
+
     void Awake()
     {
         tilemap = GameObject.Find("Tilemap").GetComponent<Tilemap>();
@@ -148,9 +150,19 @@ public class GridController : MonoBehaviour
         }
     }
 
-    public Vector3Int GetPosition(GameObject objectToMove)
+    public Vector3Int GetGridPosition(GameObject objectToMove)
     {
         return tilemap.WorldToCell(objectToMove.transform.position);
+    }
+
+    public Vector3Int GetRandomGridPosition()
+    {
+        Vector3Int randomPosition = new Vector3Int(Random.Range(-5, 5), Random.Range(-10, 10), 0);
+        while (IsOutOfBound(randomPosition))
+        {
+            randomPosition = new Vector3Int(Random.Range(-5, 5), Random.Range(-10, 10), 0);
+        }
+        return randomPosition;
     }
 
 }
