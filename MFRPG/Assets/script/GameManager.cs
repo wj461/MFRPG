@@ -163,9 +163,10 @@ public class GameManager : MonoBehaviour
                 Debug.Log("NewGame init");
                 break;
             case Scene.InGame:
+                Debug.Log("InGame init");
                 instance.players.Add(ThiefController.instance);
                 ThiefController.instance.SetPlayer("Thief", 10, 0, new List<Item>(), new List<PlayerBuff>());
-                currentPlayer = players[0];
+                instance.currentPlayer = instance.players[0];
                 break;
             default:
                 break;
