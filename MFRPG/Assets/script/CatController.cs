@@ -73,4 +73,13 @@ public class CatController : CanMove
 
         return mostLikeItem;
     }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.name == "Thief")
+        {
+            Debug.Log("Cat touch thief");
+            ThiefController.instance._hp -= 1;
+        }
+    }
 }

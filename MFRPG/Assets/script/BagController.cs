@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
-
 public class ItemDTO
 {
     public string name { get; set; }
@@ -41,10 +40,6 @@ public class BagController : MonoBehaviour
     void Awake()
     {
         instance = this;
-    }
-
-    void Start()
-    {
         // read item data
         string[] data = itemDataTextAsset.text.Split(new char[] { '\n' });
         for (int i = 1; i < data.Length-1; i++)
@@ -60,11 +55,11 @@ public class BagController : MonoBehaviour
 
             itemBaseData.Add(item);
         }
-        currentBagItems.Add(CreateBagItem(itemBaseData[1]));
-        currentBagItems.Add(CreateBagItem(itemBaseData[0]));
-        currentBagItems.Add(CreateBagItem(itemBaseData[1]));
-        currentBagItems.Add(CreateBagItem(itemBaseData[0]));
         this.gameObject.SetActive(false);
+    }
+
+    void Start()
+    {
     }
 
     GameObject CreateMapItem(ItemDTO item)
@@ -179,6 +174,32 @@ public class BagController : MonoBehaviour
             }
         }
     }
+    public ItemDTO CreateItemDTO(string itemName)
+    {
+        foreach (ItemDTO item in itemBaseData)
+        {
+            if (item.name == itemName)
+            {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public void AddRandomItem()
+    {
+        float random = UnityEngine.Random.Range(0.0f, 1.0f);
+        float sum = 0.0f;
+        foreach (ItemDTO item in itemBaseData)
+        {
+            sum += item.probability;
+            if (sum >= random)
+            {
+                currentBagItems.Add(CreateBagItem(item));
+                break;
+            }
+        }
+    }
     
     public bool IsCursorCanPutItem()
     {
@@ -192,6 +213,20 @@ public class BagController : MonoBehaviour
             }
         }
         return true;
+    }
+
+    public void SetCurrentBagItems(List<ItemDTO> items){
+        for (int i = 0; i < currentBagItems.Count; i++)
+        {
+            GameManager.instance.currentPlayer._items[i] = currentBagItems[i].GetComponent<Item>()._itemDTO;
+            Destroy(currentBagItems[i]);
+        }
+        currentBagItems.Clear();
+        foreach (ItemDTO item in items)
+        {
+            currentBagItems.Add(CreateBagItem(item));
+        }
+        currentSelectedIndex = -1;
     }
 
 }

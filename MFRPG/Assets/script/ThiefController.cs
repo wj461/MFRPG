@@ -16,7 +16,7 @@ public class ThiefController : CanMove, Player
     public string _playerName { get; set; }
     public int _hp { get; set; }
     public int _cost { get; set; }
-    public List<Item> _items { get; set; }
+    public List<ItemDTO> _items { get; set; }
     public List<PlayerBuff> _buffs { get; set; }
     public Vector3Int start = new Vector3Int(0, 0, 0);
 
@@ -37,7 +37,7 @@ public class ThiefController : CanMove, Player
 
     public Image[] costs = new Image[6];
 
-    public void SetPlayer(string name, int hp, int cost, List<Item> items, List<PlayerBuff> buffs)
+    public void SetPlayer(string name, int hp, int cost, List<ItemDTO> items, List<PlayerBuff> buffs)
     {
         _playerName = name;
         _hp = hp;

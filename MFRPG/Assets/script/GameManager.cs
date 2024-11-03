@@ -165,8 +165,13 @@ public class GameManager : MonoBehaviour
             case Scene.InGame:
                 Debug.Log("InGame init");
                 instance.players.Add(ThiefController.instance);
-                ThiefController.instance.SetPlayer("Thief", 10, 0, new List<Item>(), new List<PlayerBuff>());
+                ThiefController.instance.SetPlayer("Thief", 10, 0, new List<ItemDTO>(), new List<PlayerBuff>());
+                ThiefController.instance._items.Add(BagController.instance.CreateItemDTO("CatCan"));
+                ThiefController.instance._items.Add(BagController.instance.CreateItemDTO("CatCan"));
+                ThiefController.instance._items.Add(BagController.instance.CreateItemDTO("SusDog"));
+                ThiefController.instance._items.Add(BagController.instance.CreateItemDTO("SusDog"));
                 instance.currentPlayer = instance.players[0];
+                BagController.instance.SetCurrentBagItems(currentPlayer._items);
                 break;
             default:
                 break;
