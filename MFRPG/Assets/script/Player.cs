@@ -13,15 +13,15 @@ public interface Player
     string _playerName { get; set; }
     int _hp { get; set; }
     int _cost { get; set; }
+    int _atk { get; set; }
 
     List<ItemDTO> _items { get; set; }
-    List<PlayerBuff> _buffs { get; set; }
     
-    public void Player(string name, int hp, int cost,  List<ItemDTO> items, List<PlayerBuff> buffs){
+    public void Player(string name, int hp, int atk, int cost,  List<ItemDTO> items){
         _playerName = name;
         _hp = hp;
+        _atk = atk;
         _cost = cost;
         _items = items;
-        _buffs = buffs;
     }
 }

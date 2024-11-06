@@ -7,17 +7,20 @@ using UnityEngine.UI;
 public enum ThiefState
 {
     CanMove,
-    CanNotMove
+    CanNotMove,
+    Skip
 }
 
 public class ThiefController : CanMove, Player
 {
+    public GameObject eventCG;
     public static ThiefController instance;
     public string _playerName { get; set; }
     public int _hp { get; set; }
     public int _cost { get; set; }
+    public int _atk { get; set; }
+
     public List<ItemDTO> _items { get; set; }
-    public List<PlayerBuff> _buffs { get; set; }
     public Vector3Int start = new Vector3Int(0, 0, 0);
 
     public int catLike = -100;
@@ -37,13 +40,26 @@ public class ThiefController : CanMove, Player
 
     public Image[] costs = new Image[6];
 
-    public void SetPlayer(string name, int hp, int cost, List<ItemDTO> items, List<PlayerBuff> buffs)
+    public void SetNowRound(){
+        _cost = 0;
+        _items.Add(BagController.instance.CreateRandomItemDTO());
+        thiefState = ThiefState.CanNotMove;
+    }
+
+    public void SetNewMatch(){
+        _hp = 10;
+        _cost = 0;
+        _items = new List<ItemDTO>();
+        thiefState = ThiefState.CanNotMove;
+    }
+
+    public void SetPlayer(string name, int hp, int cost, int atk, List<ItemDTO> items)
     {
         _playerName = name;
         _hp = hp;
+        _atk = atk;
         _cost = cost;
         _items = items;
-        _buffs = buffs;
     }
 
     private void Awake()
@@ -73,8 +89,9 @@ public class ThiefController : CanMove, Player
         for (int i = 1; i < 7; i++)
         {
             costs[i-1] = GameObject.Find("Cost" + i).GetComponent<Image>();
-            costs[i-1].sprite = heartSprite;
+            costs[i-1].sprite = costSpriteEmpty;
         }
+        thiefState = ThiefState.CanNotMove;
     }
 
     // Update is called once per frame
@@ -106,6 +123,15 @@ public class ThiefController : CanMove, Player
             }
         }
         
+    }
+    public void RandomThiefSkipEvent(float probability = 30)
+    {
+        float random = UnityEngine.Random.Range(0, 100);
+        if (random < probability)
+        {
+            thiefState = ThiefState.Skip;
+            eventCG.SetActive(true);
+        }
     }
 
     public void CloseMove(){

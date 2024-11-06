@@ -6,8 +6,14 @@ using UnityEngine.Tilemaps;
 
 public class GridController : MonoBehaviour
 {
+    public enum CatWalkingState
+    {
+        Wait, Moving, MoveEnd
+    }
     public static GridController instance;
     private Tilemap tilemap;
+
+    public CatWalkingState catWalkingState = CatWalkingState.Wait;
 
     public List<GameObject> currentMapItems = new List<GameObject>();
 
@@ -24,6 +30,9 @@ public class GridController : MonoBehaviour
     void Update()
     {
 
+    }
+    public void SetNowRound(){
+        catWalkingState = CatWalkingState.Wait;
     }
 
     bool IsOutOfBound(Vector3Int currentGridPosition){
@@ -92,6 +101,22 @@ public class GridController : MonoBehaviour
             var neighbors = GetNeighbors(cur);
             foreach (var neighbor in neighbors)
             {
+                bool isCantMove = false;
+                Vector3 targetPosition = tilemap.CellToWorld(neighbor);
+                float checkRadius = 0.1f;
+                Collider2D[] colliders = Physics2D.OverlapCircleAll(targetPosition, checkRadius);
+                foreach (var collider in colliders)
+                {
+                    if ((collider.name == "Thief" || collider.name == "MapItem(Clone)") && neighbor != target)
+                    {
+                        isCantMove = true;
+                    }
+                }
+                if (isCantMove)
+                {
+                    continue;
+                }
+
                 if (!visited.Contains(neighbor))
                 {
                     visited.Add(neighbor);
@@ -143,11 +168,13 @@ public class GridController : MonoBehaviour
     }
 
     public IEnumerator MoveCorutine(GameObject objectToMove, List<Vector3Int> path) {
+        catWalkingState = CatWalkingState.Moving;
         foreach (Vector3Int pos in path)
         {
             MoveAlso(objectToMove, pos);
             yield return new WaitForSeconds(0.3f);
         }
+        catWalkingState = CatWalkingState.MoveEnd;
     }
 
     public Vector3Int GetGridPosition(GameObject objectToMove)

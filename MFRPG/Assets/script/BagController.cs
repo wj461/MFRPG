@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
+using Unity.VisualScripting;
 public class ItemDTO
 {
     public string name { get; set; }
@@ -22,7 +23,6 @@ public enum BagState
 public class BagController : MonoBehaviour
 {
     public static BagController instance;
-    public int maxBagSize = 4;
     public GameObject cursorGameObject;
     public Tilemap tilemap;
     public GameObject mapItemPrefab;
@@ -186,17 +186,19 @@ public class BagController : MonoBehaviour
         return null;
     }
 
-    public void AddRandomItem()
+    public ItemDTO CreateRandomItemDTO()
     {
-        float random = UnityEngine.Random.Range(0.0f, 1.0f);
+        float random = UnityEngine.Random.Range(0, 100);
         float sum = 0.0f;
-        foreach (ItemDTO item in itemBaseData)
+        while (true)
         {
-            sum += item.probability;
-            if (sum >= random)
+            foreach (ItemDTO item in itemBaseData)
             {
-                currentBagItems.Add(CreateBagItem(item));
-                break;
+                sum += item.probability;
+                if (sum >= random)
+                {
+                    return item;
+                }
             }
         }
     }
@@ -215,18 +217,24 @@ public class BagController : MonoBehaviour
         return true;
     }
 
-    public void SetCurrentBagItems(List<ItemDTO> items){
+    public void SaveCurrentPlayerBagItems(){
+        GameManager.instance.currentPlayer._items = new List<ItemDTO>();
         for (int i = 0; i < currentBagItems.Count; i++)
         {
-            GameManager.instance.currentPlayer._items[i] = currentBagItems[i].GetComponent<Item>()._itemDTO;
+            GameManager.instance.currentPlayer._items.Add(currentBagItems[i].GetComponent<Item>()._itemDTO);
             Destroy(currentBagItems[i]);
         }
-        currentBagItems.Clear();
+    }
+    public void SetCurrentBagItems(){
+        var items = GameManager.instance.currentPlayer._items;
+
+        currentBagItems = new List<GameObject>();
         foreach (ItemDTO item in items)
         {
             currentBagItems.Add(CreateBagItem(item));
         }
         currentSelectedIndex = -1;
+        bagState = BagState.Close;
     }
 
 }

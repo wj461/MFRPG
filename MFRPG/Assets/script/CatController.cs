@@ -5,31 +5,73 @@ using UnityEngine;
 
 public class CatController : CanMove
 {
+    public enum CatState
+    {
+        CanMove,
+        CanNotMove
+    }
+    public GameObject chess;
+    public GameObject eventCG;
+    public static CatController instance;
     public Vector3Int start = new Vector3Int(-5, -10, 0);
 
+    public GameObject RTAGameObject;
+
+    public GameObject movePreviewMid;
+
+    public CatState catState = CatState.CanMove;
+    void Awake()
+    {
+        instance = this;
+    }
     // Start is called before the first frame update
     void Start()
     {
         start = new Vector3Int(-5, -10, 0);
-        Debug.Log("CatController start: " + start);
         GridController.instance.MoveAlso(this.gameObject, start);
+        movePreviewMid = GameObject.Find("MovePreviewMidCat");
+    }
+
+    public void SetNowRound(){
+        catState = CatState.CanMove;
+        chess.SetActive(false);
+        movePreviewMid.transform.position = this.gameObject.transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown("c")){
-            GameObject mostLikeItem = FindMostLikeItem();
-            Vector3Int moveDirection = new Vector3Int(0, 0, 0);
-            if (mostLikeItem != null)
-            {
-                moveDirection = GridController.instance.GetGridPosition(mostLikeItem);
-            }
-            else
-            {
-                moveDirection = GetRandomGridPosition();
-            }
-            List<Vector3Int> path = GridController.instance.FindPathBFS(GridController.instance.GetGridPosition(this.gameObject), moveDirection);
+    }
+
+    public void RandomCatSkipEvent(float probability = 30)
+    {
+        float random = UnityEngine.Random.Range(0, 100);
+        if (random < probability)
+        {
+            catState = CatState.CanNotMove;
+            chess.SetActive(true);
+            eventCG.SetActive(true);
+        }
+    }
+
+    public void CatMoveMotion(){
+        if (catState == CatState.CanNotMove)
+        {
+            return;
+        }
+
+        GameObject mostLikeItem = FindMostLikeItem();
+        Vector3Int moveDirection = new Vector3Int(0, 0, 0);
+        if (mostLikeItem != null)
+        {
+            moveDirection = GridController.instance.GetGridPosition(mostLikeItem);
+        }
+        else
+        {
+            moveDirection = GetRandomGridPosition();
+        }
+        List<Vector3Int> path = GridController.instance.FindPathBFS(GridController.instance.GetGridPosition(this.gameObject), moveDirection);
+        if (path != null){
             StartCoroutine(GridController.instance.MoveCorutine(this.gameObject, path));
         }
     }
@@ -78,8 +120,7 @@ public class CatController : CanMove
     {
         if (other.name == "Thief")
         {
-            Debug.Log("Cat touch thief");
-            ThiefController.instance._hp -= 1;
+            RTAGameObject.SetActive(true);
         }
     }
 }

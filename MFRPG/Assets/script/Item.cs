@@ -42,7 +42,7 @@ public class Item : MonoBehaviour
 
     public void ThiefTouchItemAction()
     {
-        ThiefController.instance._hp -= _itemDTO.ATK;
+        ThiefController.instance._hp -= _itemDTO.ATK * DefenderController.instance._atk;
         Debug.Log("Touch item: " + _itemDTO.name);
     }
 

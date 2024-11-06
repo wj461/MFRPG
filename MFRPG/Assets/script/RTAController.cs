@@ -24,11 +24,11 @@ public class RTAController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown("2")){
+        if (Input.GetKeyDown("x")){
             Instantiate(defender, transform);
             cat.transform.position = new Vector3(cat.transform.position.x - 1, cat.transform.position.y, cat.transform.position.z);
         }
-        if (Input.GetKeyDown("1")){
+        if (Input.GetKeyDown("z")){
             thief.transform.position = new Vector3(thief.transform.position.x - 1, thief.transform.position.y, thief.transform.position.z);
         }
         Vector3 viewportPosition = mainCamera.WorldToViewportPoint(cat.transform.position);
@@ -42,6 +42,12 @@ public class RTAController : MonoBehaviour
             foreach (var child in children)
             {
                 Destroy(child.gameObject);
+            }
+
+            var moveDirection = CatController.instance.GetRandomGridPosition();
+            List<Vector3Int> path = GridController.instance.FindPathBFS(GridController.instance.GetGridPosition(this.gameObject), moveDirection);
+            if (path != null){
+                StartCoroutine(GridController.instance.MoveCorutine(this.gameObject, path));
             }
         }
 
