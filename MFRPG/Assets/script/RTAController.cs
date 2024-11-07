@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class RTAController : MonoBehaviour
 {
+    public static RTAController instance;
     public GameObject defender;
     public GameObject thief;
     public GameObject cat;
@@ -13,6 +14,11 @@ public class RTAController : MonoBehaviour
     public Vector3 thiefStart;
     public Camera mainCamera;
     // Start is called before the first frame update
+    void Awake()
+    {
+        instance = this;
+        this.gameObject.SetActive(false);
+    }
     void Start()
     {
         ThiefController.instance._cost = 0;
@@ -44,11 +50,12 @@ public class RTAController : MonoBehaviour
                 Destroy(child.gameObject);
             }
 
-            var moveDirection = CatController.instance.GetRandomGridPosition();
-            List<Vector3Int> path = GridController.instance.FindPathBFS(GridController.instance.GetGridPosition(this.gameObject), moveDirection);
-            if (path != null){
-                StartCoroutine(GridController.instance.MoveCorutine(this.gameObject, path));
-            }
+            // maybe cat move?
+            // var moveDirection = CatController.instance.GetRandomGridPosition();
+            // List<Vector3Int> path = GridController.instance.FindPathBFS(GridController.instance.GetGridPosition(this.gameObject), moveDirection);
+            // if (path != null){
+            //     StartCoroutine(GridController.instance.MoveCorutine(this.gameObject, path));
+            // }
         }
 
         if (Vector3.Distance(thief.transform.position, cat.transform.position) < 1.5){

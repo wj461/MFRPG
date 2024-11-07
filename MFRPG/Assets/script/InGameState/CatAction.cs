@@ -19,7 +19,7 @@ public class CatAction : IState
             || (CatController.instance.catState == CatController.CatState.CanNotMove)){
             GameManager.instance.round += 1;
             GameManager.instance.GotoState(new RoundStart());
-            GameManager.instance.NextInGameLoop();
+            GameManager.instance.currentInGameState = GameManager.InGameLoop.RoundStart;
         }
     }
 

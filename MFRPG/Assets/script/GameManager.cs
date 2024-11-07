@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     }
     
     public enum InGameLoop{
-        GetRandomItem, ThiefRollDice, ThiefAction, 
+        ThiefEvent , ThiefRollDice, ThiefAction, DefenderEvent,
         DefenderRollDice, DefenderAction, CatAction, RTATime, RoundStart
     }
 
@@ -24,14 +24,15 @@ public class GameManager : MonoBehaviour
     };
 
     public Dictionary<InGameLoop, string> inGameLoopName = new Dictionary<InGameLoop, string>(){
-        {InGameLoop.GetRandomItem, "GetRandomItem"},
         {InGameLoop.ThiefRollDice, "ThiefRollDice"},
         {InGameLoop.ThiefAction, "ThiefAction"},
         {InGameLoop.DefenderRollDice, "DefenderRollDice"},
         {InGameLoop.DefenderAction, "DefenderAction"},
         {InGameLoop.CatAction, "CatAction"},
         {InGameLoop.RTATime, "RTATime"},
-        {InGameLoop.RoundStart, "RoundStart"}
+        {InGameLoop.RoundStart, "RoundStart"},
+        {InGameLoop.ThiefEvent, "ThiefEvent"},
+        {InGameLoop.DefenderEvent, "DefenderEvent"}
         
     };
     public InGameLoop currentInGameState;
@@ -104,9 +105,6 @@ public class GameManager : MonoBehaviour
                 if (Input.GetKeyDown("q")){
                     instance.round = 9;
                 }
-                if (Input.GetKeyDown("1")){
-                    Debug.Log(currentInGameState);
-                }
                 // not forget to del
                 
                 if (triggerEnter){
@@ -119,7 +117,6 @@ public class GameManager : MonoBehaviour
                     _inGameState.OnUpdate();
                 }
 
-
                 if (round > 10 || ThiefController.instance._hp <= 0){
                     ChangeToNextScene(Scene.Welcome);
                 }
@@ -128,36 +125,6 @@ public class GameManager : MonoBehaviour
                 break;
             }
         }
-
-    public void NextInGameLoop(){
-        switch (currentInGameState){
-            case InGameLoop.RoundStart:
-                currentInGameState = InGameLoop.ThiefRollDice;
-                break;
-            case InGameLoop.ThiefRollDice:
-                if (ThiefController.instance.thiefState == ThiefState.Skip){
-                    currentInGameState = InGameLoop.DefenderRollDice;
-                    break;
-                }
-                currentInGameState = InGameLoop.ThiefAction;
-                break;
-            case InGameLoop.ThiefAction:
-                currentInGameState = InGameLoop.DefenderRollDice;
-                break;
-            case InGameLoop.DefenderRollDice:
-                currentInGameState = InGameLoop.DefenderAction;
-                break;
-            case InGameLoop.DefenderAction:
-                currentInGameState = InGameLoop.CatAction;
-                break;
-            case InGameLoop.CatAction:
-                currentInGameState = InGameLoop.RoundStart;
-                break;
-            default:
-                break;
-            }
-            // SetUI();
-    }
     
     // get item need after switch player
     public void SwitchPlayer(int index){
@@ -187,19 +154,6 @@ public class GameManager : MonoBehaviour
 
         if (currentInGameState != InGameLoop.ThiefAction){
             ThiefController.instance.CloseMove();
-        }
-    }
-
-    public void ThiefAction(){
-        if (BagController.instance.currentBagItems.Count == 0 && ThiefController.instance._cost > 0){
-            BagController.instance.Close();
-            ThiefController.instance.OpenMove();
-        }
-        else if (ThiefController.instance._cost <= 0){
-            ThiefController.instance.CloseMove();
-        }
-        else if (BagController.instance.bagState == BagState.Close){
-            ThiefController.instance.OpenMove();
         }
     }
 

@@ -10,8 +10,8 @@ public class RoundStart : IState
 
     public override void OnUpdate()
     {
-        GameManager.instance.GotoState(new ThiefRollDice());
-        GameManager.instance.NextInGameLoop();
+        GameManager.instance.GotoState(new ThiefEvent());
+        GameManager.instance.currentInGameState = GameManager.InGameLoop.ThiefEvent;
     }
 
     public override void OnExit()

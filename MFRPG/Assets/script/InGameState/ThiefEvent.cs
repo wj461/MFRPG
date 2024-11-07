@@ -11,10 +11,18 @@ public class ThiefEvent : IState
 
     public override void OnUpdate()
     {
-        if (Input.GetKeyDown("n"))
+        if (ThiefController.instance.thiefState == ThiefState.Skip)
         {
-            GameManager.instance.GotoState(new DefenderRollDice());
-            GameManager.instance.NextInGameLoop();
+            if (Input.GetKeyDown("n"))
+            {
+                GameManager.instance.GotoState(new DefenderEvent());
+                GameManager.instance.currentInGameState = GameManager.InGameLoop.DefenderRollDice;
+            }
+        }
+        else
+        {
+            GameManager.instance.GotoState(new ThiefRollDice());
+            GameManager.instance.currentInGameState = GameManager.InGameLoop.ThiefRollDice;
         }
     }
 

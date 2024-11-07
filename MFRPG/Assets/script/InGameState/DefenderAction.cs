@@ -15,7 +15,7 @@ public class DefenderAction : IState
         else if (Input.GetKeyDown("n")){
             GridController.instance.SetNowRound();
             GameManager.instance.GotoState(new CatAction());
-            GameManager.instance.NextInGameLoop();
+            GameManager.instance.currentInGameState = GameManager.InGameLoop.CatAction;
         }
     }
 
