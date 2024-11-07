@@ -42,7 +42,6 @@ public class ThiefController : CanMove, Player
 
     public void SetNowRound(){
         _cost = 0;
-        _items.Add(BagController.instance.CreateRandomItemDTO());
         thiefState = ThiefState.CanNotMove;
     }
 

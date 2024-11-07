@@ -5,7 +5,7 @@ using UnityEngine;
 public class BannerController : MonoBehaviour
 {
     public static BannerController instance;
-    Animator animator;
+    public Animator animator;
 
     public Vector3 startPosition;
 
@@ -24,6 +24,11 @@ public class BannerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //當動畫撥放完畢時
+        if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !animator.IsInTransition(0))
+        {
+            HideBanner();
+        }
     }
 
     public void HideBanner()

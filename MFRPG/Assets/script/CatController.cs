@@ -30,6 +30,7 @@ public class CatController : CanMove
         start = new Vector3Int(-5, -10, 0);
         GridController.instance.MoveAlso(this.gameObject, start);
         movePreviewMid = GameObject.Find("MovePreviewMidCat");
+        movePreviewMid.transform.position = this.gameObject.transform.position;
     }
 
     public void SetNowRound(){
@@ -105,7 +106,6 @@ public class CatController : CanMove
             Item itemScript = item.GetComponent<Item>();
             float distance = itemScript.GetDistanceTo(this.gameObject);
             int currentCatLike = (itemScript._itemDTO.catLike * 5) - ((int)distance * 2);
-            Debug.Log("Item: " + itemScript._itemDTO.name + " CatLike: " + currentCatLike);
             if (currentCatLike > maxCatLike)
             {
                 maxCatLike = currentCatLike;

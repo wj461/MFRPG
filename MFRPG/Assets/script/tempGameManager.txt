@@ -13,8 +13,8 @@ public class GameManager : MonoBehaviour
     }
     
     public enum InGameLoop{
-        GetRandomItem, ThiefRollDice, ThiefAction, 
-        DefenderRollDice, DefenderAction, CatAction, RTATime, RoundStart
+        RoundStart, RandomSSRItem, GetRandomItem, ThiefRollDice, ThiefAction, 
+        DefenderRollDice, DefenderAction, CatAction, RTATime
     }
 
     public Dictionary<Scene, string> sceneName = new Dictionary<Scene, string>(){
@@ -24,18 +24,18 @@ public class GameManager : MonoBehaviour
     };
 
     public Dictionary<InGameLoop, string> inGameLoopName = new Dictionary<InGameLoop, string>(){
+        {InGameLoop.RoundStart, "RoundStart"},
+        {InGameLoop.RandomSSRItem, "RandomSSRItem"},
         {InGameLoop.GetRandomItem, "GetRandomItem"},
         {InGameLoop.ThiefRollDice, "ThiefRollDice"},
         {InGameLoop.ThiefAction, "ThiefAction"},
         {InGameLoop.DefenderRollDice, "DefenderRollDice"},
         {InGameLoop.DefenderAction, "DefenderAction"},
         {InGameLoop.CatAction, "CatAction"},
-        {InGameLoop.RTATime, "RTATime"},
-        {InGameLoop.RoundStart, "RoundStart"}
-        
+        {InGameLoop.RTATime, "RTATime"}
     };
-    public InGameLoop currentInGameState;
-    IState _inGameState;
+    public InGameLoop currentInGameLoop = InGameLoop.RoundStart;
+    IStatus _inGameState;
 
     List<Player> players = new List<Player>();
     public Player currentPlayer = null;
@@ -43,6 +43,8 @@ public class GameManager : MonoBehaviour
     public GameObject currentState;
 
     string thisMatchThiefName = "";
+
+    InGameLoop inGameLoop = InGameLoop.ThiefRollDice;
 
     public int round = 1;
 
@@ -70,14 +72,17 @@ public class GameManager : MonoBehaviour
             round = 1;
             NowRound.text = round.ToString();
         }
-        triggerEnter = true;
-        currentInGameState = InGameLoop.RoundStart;
-        _inGameState = new RoundStart();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (BannerController.instance.isShow()){
+            if (Input.GetKeyDown("n")){
+                BannerController.instance.HideBanner();
+            }
+            return;
+        }
         SetStateDebug();
 
         switch (currentScene){
@@ -105,60 +110,141 @@ public class GameManager : MonoBehaviour
                     instance.round = 9;
                 }
                 if (Input.GetKeyDown("1")){
-                    Debug.Log(currentInGameState);
+                    BannerController.instance.ShowBanner();
                 }
                 // not forget to del
-                
                 if (triggerEnter){
-                    Debug.Log("triggerEnter" + _inGameState);
-                    SetUI();
                     _inGameState?.OnEnter();
                     triggerEnter = false;
                 }
-                if (!BannerController.instance.animator.GetBool("IsShow")){
-                    _inGameState.OnUpdate();
-                }
+                _inGameState.OnUpdate();
 
+                // SetUI();
 
                 if (round > 10 || ThiefController.instance._hp <= 0){
                     ChangeToNextScene(Scene.Welcome);
+                }
+
+                switch (currentInGameLoop){
+                    case InGameLoop.RoundStart:
+                        CatController.instance.SetNowRound();
+                        NextInGameLoop();
+                        ThiefController.instance.RandomThiefSkipEvent();
+                        break;
+                    case InGameLoop.ThiefRollDice:
+                        if (ThiefController.instance.thiefState == ThiefState.Skip){
+                            if (Input.GetKeyDown("n")){
+                                NextInGameLoop();
+                                ThiefController.instance.CloseMove();
+                                SwitchPlayer();
+                                ThiefController.instance.SetNowRound();
+                                CatController.instance.RandomCatSkipEvent();
+                            }
+                        }
+                        else{
+                            GameObject.Find("ThiefActionImage").GetComponent<SpriteRenderer>().color = Color.white;
+                            RollDiceState();
+                        }
+                        break;
+                    case InGameLoop.ThiefAction:
+                        ThiefAction();
+
+                        if (Input.GetKeyDown("n")){
+                            ThiefController.instance.CloseMove();
+                            BagController.instance.Close();
+                            //first save item then switch player too sus
+                            SwitchPlayer();
+                            ThiefController.instance.SetNowRound();
+                            NextInGameLoop();
+                            CatController.instance.RandomCatSkipEvent();
+                        }else if (Input.GetKeyDown("e")){
+                            SwitchBag();
+                        }
+                        break;
+                    case InGameLoop.DefenderRollDice:
+                        GameObject.Find("Defender").GetComponent<SpriteRenderer>().color = Color.white;
+                        if (CatController.instance.catState == CatController.CatState.CanNotMove){
+                            //CG part
+                            if (!CatController.instance.eventCG.activeInHierarchy){
+                                RollDiceState();
+                            }
+                        }
+                        else{
+                            RollDiceState();
+                        }
+                        break;
+                    case InGameLoop.DefenderAction:
+                        if (Input.GetKeyDown("e")){
+                            SwitchBag();
+                        }
+                        else if (Input.GetKeyDown("n")){
+                            BagController.instance.Close();
+                            //first save item then switch player too sus
+                            SwitchPlayer();
+                            DefenderController.instance.SetNowRound();
+                            GridController.instance.SetNowRound();
+                            NextInGameLoop();
+                        }
+                        break;
+                    case InGameLoop.CatAction:
+                        if (GridController.instance.catWalkingState == GridController.CatWalkingState.Wait){
+                            CatController.instance.CatMoveMotion();
+                        }
+                        if ((GridController.instance.catWalkingState == GridController.CatWalkingState.MoveEnd ) || (CatController.instance.catState == CatController.CatState.CanNotMove)){
+                        {
+                            round++;
+                            NextInGameLoop();
+                        }
+                        break;
+                    }
+                    break;
                 }
                 break;
             default:
                 break;
             }
         }
-
+    
     public void NextInGameLoop(){
-        switch (currentInGameState){
+        switch (currentInGameLoop){
             case InGameLoop.RoundStart:
-                currentInGameState = InGameLoop.ThiefRollDice;
+                currentInGameLoop = InGameLoop.ThiefRollDice;
+                Dice.instance.RollDice();
                 break;
             case InGameLoop.ThiefRollDice:
                 if (ThiefController.instance.thiefState == ThiefState.Skip){
-                    currentInGameState = InGameLoop.DefenderRollDice;
+                    currentInGameLoop = InGameLoop.DefenderRollDice;
                     break;
                 }
-                currentInGameState = InGameLoop.ThiefAction;
+                currentInGameLoop = InGameLoop.ThiefAction;
                 break;
             case InGameLoop.ThiefAction:
-                currentInGameState = InGameLoop.DefenderRollDice;
+                currentInGameLoop = InGameLoop.DefenderRollDice;
+                Dice.instance.RollDice();
                 break;
             case InGameLoop.DefenderRollDice:
-                currentInGameState = InGameLoop.DefenderAction;
+                currentInGameLoop = InGameLoop.DefenderAction;
                 break;
             case InGameLoop.DefenderAction:
-                currentInGameState = InGameLoop.CatAction;
+                currentInGameLoop = InGameLoop.CatAction;
                 break;
             case InGameLoop.CatAction:
-                currentInGameState = InGameLoop.RoundStart;
+                currentInGameLoop = InGameLoop.RoundStart;
                 break;
             default:
                 break;
-            }
-            // SetUI();
+        }
+        BannerController.instance.ShowBanner();
+        SetUI();
     }
-    
+
+    public void RollDiceState(){
+        if (Input.GetKeyDown(KeyCode.Space)){
+            currentPlayer._cost = Dice.instance.StopRollDice();
+            NextInGameLoop();
+        }
+    }
+
     // get item need after switch player
     public void SwitchPlayer(int index){
         BagController.instance.SaveCurrentPlayerBagItems();
@@ -185,7 +271,7 @@ public class GameManager : MonoBehaviour
             ThiefController.instance.OpenMove();
         }
 
-        if (currentInGameState != InGameLoop.ThiefAction){
+        if (inGameLoop != InGameLoop.ThiefAction){
             ThiefController.instance.CloseMove();
         }
     }
@@ -211,14 +297,14 @@ public class GameManager : MonoBehaviour
         NowRound.text = round.ToString();
 
         TMP_Text NowState = currentState.GetComponent<TMP_Text>();
-        NowState.text = inGameLoopName[currentInGameState];
+        NowState.text = inGameLoopName[currentInGameLoop];
 
         TMP_Text BannerText = GameObject.Find("BannerText").GetComponent<TMP_Text>();
-        if (inGameLoopName[currentInGameState] == "RoundStart"){
+        if (inGameLoopName[currentInGameLoop] == "RoundStart"){
             BannerText.text = "Round " + round.ToString();
         }
         else{
-            BannerText.text = inGameLoopName[currentInGameState];
+            BannerText.text = inGameLoopName[currentInGameLoop];
         }
     }
 
@@ -276,7 +362,7 @@ public class GameManager : MonoBehaviour
     }
 
     private bool triggerEnter;
-    public void GotoState(IState status){
+    public void GotoStatus(IStatus status){
         _inGameState?.OnExit();
         _inGameState = status;
         triggerEnter = true;

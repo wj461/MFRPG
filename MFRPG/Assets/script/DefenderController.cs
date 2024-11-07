@@ -30,7 +30,6 @@ public class DefenderController : MonoBehaviour, Player
 
     public void SetNowRound(){
         _cost = 0;
-        _items.Add(BagController.instance.CreateRandomItemDTO());
     }
 
     public void SetNewMatch(){
