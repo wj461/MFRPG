@@ -3,9 +3,9 @@ public class ThiefRollDice : IState{
     public override void OnEnter()
     {
         BannerController.instance.ShowBanner();
-        Dice.instance.RollDice();
         GameManager.instance.SwitchPlayer(0);
         ThiefController.instance.CloseMove();
+        Dice.instance.RollDice();
     }
 
     public override void OnUpdate()

@@ -5,8 +5,8 @@ public class DefenderRollDice : IState
     public override void OnEnter()
     {
         BannerController.instance.ShowBanner();
-        Dice.instance.RollDice();
         GameManager.instance.SwitchPlayer(1);
+        Dice.instance.RollDice();
     }
 
     public override void OnUpdate()

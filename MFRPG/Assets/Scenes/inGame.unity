@@ -548,7 +548,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -7, y: 194}
+  m_AnchoredPosition: {x: -230, y: 110}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &65264941
@@ -571,6 +571,8 @@ MonoBehaviour:
   - {fileID: -2122167080, guid: 805c459f732f4284da2b1192a605aef1, type: 3}
   - {fileID: -418596169, guid: 805c459f732f4284da2b1192a605aef1, type: 3}
   animator: {fileID: 0}
+  thiefDicePosition: {x: -230, y: 110, z: 0}
+  defenderDicePosition: {x: 250, y: 110, z: 0}
   currentSide: 0
 --- !u!114 &65264942
 MonoBehaviour:
@@ -2553,7 +2555,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &851083665
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4007,7 +4009,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1326950241
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4108,6 +4110,7 @@ MonoBehaviour:
   thief: {fileID: 261098164}
   cat: {fileID: 2018214540}
   thiefWin: {fileID: 1618546730}
+  defenderWin: {fileID: 787262997}
   catStart: {x: 0, y: 0, z: 0}
   thiefStart: {x: 0, y: 0, z: 0}
   mainCamera: {fileID: 124953231}

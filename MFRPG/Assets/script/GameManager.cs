@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using System.Linq;
 using System.Data.Common;
 using Unity.VisualScripting;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -84,24 +85,21 @@ public class GameManager : MonoBehaviour
         switch (currentScene){
             case Scene.Welcome:
                 if (Input.GetKeyDown("space")){
-                    ChangeToNextScene(Scene.NewGame);
+                    ChangeToScene(Scene.NewGame);
                 }
                 break;
             case Scene.NewGame:
                 if (Input.GetKeyDown("a")){
                     thisMatchThiefName = "A";
-                    ChangeToNextScene(Scene.InGame);
+                    ChangeToScene(Scene.InGame);
                 }
                 if (Input.GetKeyDown("b")){
                     thisMatchThiefName = "B";
-                    ChangeToNextScene(Scene.InGame);
+                    ChangeToScene(Scene.InGame);
                 }
                 break;
             case Scene.InGame:
                 // something temp work
-                if (thisMatchThiefName == ""){
-                    thisMatchThiefName = "A";
-                }
                 if (Input.GetKeyDown("q")){
                     instance.round = 9;
                 }
@@ -118,7 +116,7 @@ public class GameManager : MonoBehaviour
                 }
 
                 if (round > 10 || ThiefController.instance._hp <= 0){
-                    ChangeToNextScene(Scene.Welcome);
+                    ChangeToScene(Scene.Welcome);
                 }
                 break;
             default:
@@ -187,7 +185,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void ChangeToNextScene(Scene nextScene){
+    public void ChangeToScene(Scene nextScene){
         currentScene = nextScene;
         SceneManager.LoadScene(sceneName[nextScene]);
     }
@@ -202,6 +200,8 @@ public class GameManager : MonoBehaviour
                 Debug.Log("NewGame init");
                 break;
             case Scene.InGame:
+                instance.currentInGameState = InGameLoop.RoundStart;
+                instance._inGameState = new RoundStart();
                 Debug.Log("InGame init");
                 instance.round = 1;
                 instance.players.Clear();
@@ -209,13 +209,13 @@ public class GameManager : MonoBehaviour
                 instance.players.Add(ThiefController.instance);
                 instance.players.Add(DefenderController.instance);
 
-                ThiefController.instance.SetPlayer("A", 10, 0, 2, new List<ItemDTO>());
+                ThiefController.instance.SetPlayer("Thief", 10, 0, 2, new List<ItemDTO>());
                 ThiefController.instance._items.Add(BagController.instance.CreateRandomItemDTO());
                 ThiefController.instance._items.Add(BagController.instance.CreateRandomItemDTO());
                 ThiefController.instance._items.Add(BagController.instance.CreateRandomItemDTO());
                 ThiefController.instance._items.Add(BagController.instance.CreateRandomItemDTO());
 
-                DefenderController.instance.SetPlayer("B", 10, 0, 3, new List<ItemDTO>());
+                DefenderController.instance.SetPlayer("Defender", 10, 0, 3, new List<ItemDTO>());
                 DefenderController.instance._items.Add(BagController.instance.CreateRandomItemDTO());
                 DefenderController.instance._items.Add(BagController.instance.CreateRandomItemDTO());
                 DefenderController.instance._items.Add(BagController.instance.CreateRandomItemDTO());

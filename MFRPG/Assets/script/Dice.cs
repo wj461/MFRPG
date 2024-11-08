@@ -10,6 +10,9 @@ public class Dice : MonoBehaviour
     public Sprite[] diceSides;
     public Animator animator;
 
+    public Vector3 thiefDicePosition = new Vector3(-230f, 110f, 0);
+    public Vector3 defenderDicePosition = new Vector3(250f, 110f, 0);
+
     public int currentSide = 0;
     void Awake()
     {
@@ -20,8 +23,18 @@ public class Dice : MonoBehaviour
     {
         animator = GetComponent<Animator>();
     }
+
+    // After switch player, roll dice
     public void RollDice()
     {
+        if (GameManager.instance.currentPlayer._playerName == "Thief")
+        {
+            this.gameObject.transform.localPosition = thiefDicePosition;
+        }
+        else
+        {
+            this.gameObject.transform.localPosition = defenderDicePosition;
+        }
         animator.enabled = true;
     }
 

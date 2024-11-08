@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RTAController : MonoBehaviour
@@ -9,6 +7,7 @@ public class RTAController : MonoBehaviour
     public GameObject thief;
     public GameObject cat;
     public GameObject thiefWin;
+    public GameObject defenderWin;
 
     public Vector3 catStart;
     public Vector3 thiefStart;
@@ -41,7 +40,7 @@ public class RTAController : MonoBehaviour
 
         if (viewportPosition.x < 0 || viewportPosition.x > 1 || viewportPosition.y < 0 || viewportPosition.y > 1 || viewportPosition.z < 0)
         {
-            this.gameObject.SetActive(false);
+            defenderWin.SetActive(true);
             cat.transform.position = catStart;
             thief.transform.position = thiefStart;
             var children = GetComponentsInChildren<DefenderRTAController>();
@@ -49,18 +48,16 @@ public class RTAController : MonoBehaviour
             {
                 Destroy(child.gameObject);
             }
-
-            // maybe cat move?
-            // var moveDirection = CatController.instance.GetRandomGridPosition();
-            // List<Vector3Int> path = GridController.instance.FindPathBFS(GridController.instance.GetGridPosition(this.gameObject), moveDirection);
-            // if (path != null){
-            //     StartCoroutine(GridController.instance.MoveCorutine(this.gameObject, path));
-            // }
         }
 
         if (Vector3.Distance(thief.transform.position, cat.transform.position) < 1.5){
             thiefWin.SetActive(true);
             Debug.Log("Game Over");
+        }
+        if (thiefWin.activeInHierarchy || defenderWin.activeInHierarchy){
+            if (Input.GetKeyDown("space")){
+                GameManager.instance.ChangeToScene(GameManager.Scene.NewGame);
+            }
         }
     }
 }
