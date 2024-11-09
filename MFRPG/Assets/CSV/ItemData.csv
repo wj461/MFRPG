@@ -1,6 +1,6 @@
 Name,Cost,Probability,CatLike,ImageName,ATK
-CatCan,1,50,10,pet_food_cat_can,3
-SusDog,3,10,-1,youkai_jinmenken,5
-Banana,3,30,5,banana_kawa_muke,3
-Kyuuri,2,70,-10,cucumber-600x400,0
-Cardboard,3,10,20,cardboard_open,0
+CatCan,1,50,10,pet_food_cat_can,2
+SusDog,3,10,-1,youkai_jinmenken,2
+Banana,3,30,5,banana_kawa_muke,-1
+Kyuuri,2,70,-10,cucumber-600x400,-1
+Cardboard,3,50,20,cardboard_open,0

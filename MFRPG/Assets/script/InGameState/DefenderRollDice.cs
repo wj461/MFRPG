@@ -1,5 +1,5 @@
-
 using UnityEngine;
+
 public class DefenderRollDice : IState
 {
     public override void OnEnter()

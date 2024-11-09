@@ -1,9 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
-using Unity.VisualScripting;
+using TMPro;
 public class ItemDTO
 {
     public string name { get; set; }
@@ -23,6 +22,10 @@ public enum BagState
 public class BagController : MonoBehaviour
 {
     public static BagController instance;
+    public Animator animator;
+    public GameObject BagPanel;
+    public TMP_Text BagText;
+
     public GameObject cursorGameObject;
     public Tilemap tilemap;
     public GameObject mapItemPrefab;
@@ -30,7 +33,7 @@ public class BagController : MonoBehaviour
     public TextAsset itemDataTextAsset;
     public List<ItemDTO> itemBaseData = new List<ItemDTO>();
     public List<GameObject> currentBagItems = new List<GameObject>();
-    private Color selectedColor = new Color(0.5f, 0.5f, 0.5f, 1.0f);
+    private Color notSelectedColor = new Color(0.5f, 0.5f, 0.5f, 1.0f);
 
     public BagState bagState = BagState.Close;
 
@@ -55,7 +58,7 @@ public class BagController : MonoBehaviour
 
             itemBaseData.Add(item);
         }
-        this.gameObject.SetActive(false);
+        // this.gameObject.SetActive(false);
     }
 
     void Start()
@@ -98,7 +101,7 @@ public class BagController : MonoBehaviour
         if (BagState.Open == bagState)
         {
             if (IsCurrentSelectedIndexValid()){
-                currentBagItems[currentSelectedIndex].GetComponent<Image>().color = selectedColor;
+                currentBagItems[currentSelectedIndex].GetComponent<Image>().color = Color.white;
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
                     BagPutItemInMap();
@@ -106,12 +109,12 @@ public class BagController : MonoBehaviour
 
                 if (Input.GetKeyDown(KeyCode.LeftArrow))
                 {
-                    currentBagItems[currentSelectedIndex].GetComponent<Image>().color = Color.white;
+                    currentBagItems[currentSelectedIndex].GetComponent<Image>().color = notSelectedColor;
                     currentSelectedIndex = (currentSelectedIndex - 1 + currentBagItems.Count) % currentBagItems.Count;
                 }
                 else if (Input.GetKeyDown(KeyCode.RightArrow))
                 {
-                    currentBagItems[currentSelectedIndex].GetComponent<Image>().color = Color.white;
+                    currentBagItems[currentSelectedIndex].GetComponent<Image>().color = notSelectedColor;
                     currentSelectedIndex = (currentSelectedIndex + 1) % currentBagItems.Count;
                 }
             }
@@ -123,23 +126,36 @@ public class BagController : MonoBehaviour
         
     }
 
+    public void ShowText(){
+        BagPanel.SetActive(true);
+    }
+    public void CloseText(){
+        BagPanel.SetActive(false);
+    }
+
     public void Close(){
-        if (IsCurrentSelectedIndexValid()) currentBagItems[currentSelectedIndex].GetComponent<Image>().color = Color.white;
+        if (IsCurrentSelectedIndexValid()) currentBagItems[currentSelectedIndex].GetComponent<Image>().color = notSelectedColor;
         bagState = BagState.Close;
         currentSelectedIndex = -1;
-        gameObject.SetActive(false);
+        // gameObject.SetActive(false);
         cursorGameObject.SetActive(false);
+        animator.SetBool("IsShow", false);
+        BagText.text = "Open Bag";
     }
 
     public void Open(){
         bagState = BagState.Open;
         currentSelectedIndex = 0;
         if (IsCurrentSelectedIndexValid()) {
-            gameObject.SetActive(true);
+            // gameObject.SetActive(true);
             cursorGameObject.SetActive(true);
+            animator.SetBool("IsShow", true);
+            BagText.text = "Close Bag";
         }
         else {
             Close();
+            animator.SetBool("IsShow", false);
+            BagText.text = "Open Bag";
         }
     }
 

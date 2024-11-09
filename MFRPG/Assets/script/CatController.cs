@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class CatController : CanMove
@@ -14,8 +12,6 @@ public class CatController : CanMove
     public GameObject eventCG;
     public static CatController instance;
     public Vector3Int start = new Vector3Int(-5, -10, 0);
-
-    public GameObject RTAGameObject;
 
     public GameObject movePreviewMid;
 
@@ -118,9 +114,10 @@ public class CatController : CanMove
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log("CatController OnTriggerEnter2D"+ other.name);
         if (other.name == "Thief")
         {
-            RTAGameObject.SetActive(true);
+            ThiefController.instance.RTAGameObject.SetActive(true);
         }
     }
 }

@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class RTAController : MonoBehaviour
 {
-    public static RTAController instance;
     public GameObject defender;
     public GameObject thief;
     public GameObject cat;
@@ -15,8 +14,6 @@ public class RTAController : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        instance = this;
-        this.gameObject.SetActive(false);
     }
     void Start()
     {
@@ -52,11 +49,17 @@ public class RTAController : MonoBehaviour
 
         if (Vector3.Distance(thief.transform.position, cat.transform.position) < 1.5){
             thiefWin.SetActive(true);
-            Debug.Log("Game Over");
         }
         if (thiefWin.activeInHierarchy || defenderWin.activeInHierarchy){
-            if (Input.GetKeyDown("space")){
-                GameManager.instance.ChangeToScene(GameManager.Scene.NewGame);
+            if (Input.GetKeyDown("n")){
+                if (thiefWin.activeInHierarchy){
+                    GameManager.instance.WinnerAddScore("Thief");
+                }
+                else{
+                    GameManager.instance.WinnerAddScore("Defender");
+                }
+                GameManager.instance.thisMatchThiefName = GameManager.instance.thisMatchThiefName == "A" ? "B" : "A";
+                GameManager.instance.ChangeToScene(GameManager.Scene.InGame);
             }
         }
     }

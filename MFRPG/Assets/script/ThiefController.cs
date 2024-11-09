@@ -14,6 +14,10 @@ public enum ThiefState
 public class ThiefController : CanMove, Player
 {
     public GameObject eventCG;
+    public GameObject RTAGameObject;
+    public GameObject ThiefDeadCG;
+    public GameObject CatWinCG;
+
     public static ThiefController instance;
     public string _playerName { get; set; }
     public int _hp { get; set; }

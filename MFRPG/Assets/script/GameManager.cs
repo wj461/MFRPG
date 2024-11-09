@@ -3,14 +3,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
-using System.Data.Common;
-using Unity.VisualScripting;
-using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
     public enum Scene {
-        Welcome, NewGame, InGame
+        Welcome, NewGame, InGame, WinGame
     }
     
     public enum InGameLoop{
@@ -21,20 +18,20 @@ public class GameManager : MonoBehaviour
     public Dictionary<Scene, string> sceneName = new Dictionary<Scene, string>(){
         {Scene.Welcome, "welcome"},
         {Scene.NewGame, "newGame"},
-        {Scene.InGame, "inGame"}
+        {Scene.InGame, "inGame"},
+        {Scene.WinGame, "WinGame"},
     };
 
     public Dictionary<InGameLoop, string> inGameLoopName = new Dictionary<InGameLoop, string>(){
-        {InGameLoop.ThiefRollDice, "ThiefRollDice"},
-        {InGameLoop.ThiefAction, "ThiefAction"},
-        {InGameLoop.DefenderRollDice, "DefenderRollDice"},
-        {InGameLoop.DefenderAction, "DefenderAction"},
-        {InGameLoop.CatAction, "CatAction"},
-        {InGameLoop.RTATime, "RTATime"},
-        {InGameLoop.RoundStart, "RoundStart"},
-        {InGameLoop.ThiefEvent, "ThiefEvent"},
-        {InGameLoop.DefenderEvent, "DefenderEvent"}
-        
+        {InGameLoop.ThiefRollDice, "Attacker Roll Dice"},
+        {InGameLoop.ThiefAction, "Attacker Action"},
+        {InGameLoop.DefenderRollDice, "Defender Roll Dice"},
+        {InGameLoop.DefenderAction, "Defender Action"},
+        {InGameLoop.CatAction, "Cat Action"},
+        {InGameLoop.RTATime, "RTA Time"},
+        {InGameLoop.RoundStart, "Round Start"},
+        {InGameLoop.ThiefEvent, "Thief Event"},
+        {InGameLoop.DefenderEvent, "Defender Event"}
     };
     public InGameLoop currentInGameState;
     IState _inGameState;
@@ -44,9 +41,11 @@ public class GameManager : MonoBehaviour
     public Scene currentScene;
     public GameObject currentState;
 
-    string thisMatchThiefName = "";
+    public string thisMatchThiefName = "";
 
     public int round = 1;
+    public int playerAWinCount = 0;
+    public int playerBWinCount = 0;
 
     public static GameManager instance = null;
     void Awake() {
@@ -84,7 +83,7 @@ public class GameManager : MonoBehaviour
 
         switch (currentScene){
             case Scene.Welcome:
-                if (Input.GetKeyDown("space")){
+                if (Input.anyKey){
                     ChangeToScene(Scene.NewGame);
                 }
                 break;
@@ -104,19 +103,29 @@ public class GameManager : MonoBehaviour
                     instance.round = 9;
                 }
                 // not forget to del
+                if (playerAWinCount == 2 || playerBWinCount == 2){
+                    ChangeToScene(Scene.WinGame);
+                }
                 
-                if (triggerEnter){
-                    Debug.Log("triggerEnter" + _inGameState);
-                    SetUI();
-                    _inGameState?.OnEnter();
-                    triggerEnter = false;
+                if (ThiefController.instance.CatWinCG.activeInHierarchy){
+                    if (Input.GetKeyDown("n")){
+                        thisMatchThiefName = thisMatchThiefName == "A" ? "B" : "A";
+                        ChangeToScene(Scene.InGame);
+                    }
                 }
-                if (!BannerController.instance.animator.GetBool("IsShow")){
-                    _inGameState.OnUpdate();
-                }
+                else{
+                    if (triggerEnter){
+                        SetUI();
+                        _inGameState?.OnEnter();
+                        triggerEnter = false;
+                    }
+                    if (!BannerController.instance.animator.GetBool("IsShow")){
+                        _inGameState.OnUpdate();
+                    }
 
-                if (round > 10 || ThiefController.instance._hp <= 0){
-                    ChangeToScene(Scene.Welcome);
+                    if (round > 10){
+                        ThiefController.instance.CatWinCG.SetActive(true);
+                    }
                 }
                 break;
             default:
@@ -156,8 +165,6 @@ public class GameManager : MonoBehaviour
     }
 
     public void SetUI(){
-        TMP_Text nowThief = GameObject.Find("Now Thief").GetComponent<TMP_Text>();
-        nowThief.text = thisMatchThiefName;
 
         TMP_Text NowRound = GameObject.Find("Now Round").GetComponent<TMP_Text>();
         NowRound.text = round.ToString();
@@ -166,12 +173,15 @@ public class GameManager : MonoBehaviour
         NowState.text = inGameLoopName[currentInGameState];
 
         TMP_Text BannerText = GameObject.Find("BannerText").GetComponent<TMP_Text>();
-        if (inGameLoopName[currentInGameState] == "RoundStart"){
+        if (inGameLoopName[currentInGameState] == inGameLoopName[InGameLoop.RoundStart]){
             BannerText.text = "Round " + round.ToString();
         }
         else{
             BannerText.text = inGameLoopName[currentInGameState];
         }
+
+        TMP_Text Score = GameObject.Find("Score").GetComponent<TMP_Text>();
+        Score.text = "A " + playerAWinCount.ToString() + " : " + playerBWinCount.ToString() + " B";
     }
 
     public void SetStateDebug(){
@@ -202,7 +212,8 @@ public class GameManager : MonoBehaviour
             case Scene.InGame:
                 instance.currentInGameState = InGameLoop.RoundStart;
                 instance._inGameState = new RoundStart();
-                Debug.Log("InGame init");
+                instance.triggerEnter = true;
+
                 instance.round = 1;
                 instance.players.Clear();
 
@@ -223,6 +234,12 @@ public class GameManager : MonoBehaviour
 
                 instance.currentPlayer = instance.players[0];
                 BagController.instance.SetCurrentBagItems();
+
+                TMP_Text nowThief = GameObject.Find("Now Thief").GetComponent<TMP_Text>();
+                nowThief.text = instance.thisMatchThiefName;
+                TMP_Text nowDefender = GameObject.Find("Now Defender").GetComponent<TMP_Text>();
+                nowDefender.text = instance.thisMatchThiefName == "A" ? "B" : "A";
+
                 break;
             default:
                 break;
@@ -234,6 +251,25 @@ public class GameManager : MonoBehaviour
         _inGameState?.OnExit();
         _inGameState = status;
         triggerEnter = true;
+    }
+
+    public void WinnerAddScore(string name){
+        if (name == "Thief"){
+            if (thisMatchThiefName == "A"){
+                playerAWinCount += 1;
+            }
+            else{
+                playerBWinCount += 1;
+            }
+        }
+        else{
+            if (thisMatchThiefName == "A"){
+                playerBWinCount += 1;
+            }
+            else{
+                playerAWinCount += 1;
+            }
+        }
     }
 
 }

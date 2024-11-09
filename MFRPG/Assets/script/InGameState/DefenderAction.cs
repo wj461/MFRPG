@@ -5,6 +5,7 @@ public class DefenderAction : IState
     public override void OnEnter()
     {
         BannerController.instance.ShowBanner();
+        BagController.instance.ShowText();
     }
 
     public override void OnUpdate()
@@ -23,5 +24,6 @@ public class DefenderAction : IState
     {
         BagController.instance.Close();
         DefenderController.instance.SetNowRound();
+        BagController.instance.CloseText();
     }
 }

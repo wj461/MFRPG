@@ -1,26 +1,35 @@
 using UnityEngine;
 public class ThiefAction : IState{
-    public GameObject rtaController;
     public override void OnEnter()
     {
         BannerController.instance.ShowBanner();
-        rtaController = RTAController.instance.gameObject;
+        BagController.instance.ShowText();
     }
 
     public override void OnUpdate()
     {
-        PerformThiefAction();
-        if (rtaController.activeInHierarchy){
-            GameManager.instance.GotoState(new RTATime());
-            GameManager.instance.currentInGameState = GameManager.InGameLoop.RTATime;
+        if (ThiefController.instance._hp <= 0){
+            ThiefController.instance.ThiefDeadCG.SetActive(true);
+            if (Input.GetKeyDown("n")){
+                GameManager.instance.WinnerAddScore("Defender");
+                GameManager.instance.thisMatchThiefName = GameManager.instance.thisMatchThiefName == "A" ? "B" : "A";
+                GameManager.instance.ChangeToScene(GameManager.Scene.InGame);
+            }
         }
+        else{
+            PerformThiefAction();
+            if (ThiefController.instance.RTAGameObject.activeInHierarchy){
+                GameManager.instance.GotoState(new RTATime());
+                GameManager.instance.currentInGameState = GameManager.InGameLoop.RTATime;
+            }
 
-        if (Input.GetKeyDown("e")){
-            GameManager.instance.SwitchBag();
-        }
-        else if (Input.GetKeyDown("n")){
-            GameManager.instance.GotoState(new DefenderEvent());
-            GameManager.instance.currentInGameState = GameManager.InGameLoop.DefenderEvent;
+            if (Input.GetKeyDown("e")){
+                GameManager.instance.SwitchBag();
+            }
+            else if (Input.GetKeyDown("n")){
+                GameManager.instance.GotoState(new DefenderEvent());
+                GameManager.instance.currentInGameState = GameManager.InGameLoop.DefenderEvent;
+            }
         }
     }
 
@@ -42,5 +51,6 @@ public class ThiefAction : IState{
         ThiefController.instance.CloseMove();
         BagController.instance.Close();
         ThiefController.instance.SetNowRound();
+        BagController.instance.CloseText();
     }
 }
