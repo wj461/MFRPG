@@ -102,6 +102,7 @@ public class GameManager : MonoBehaviour
             case Scene.InGame:
                 if (playerAWinCount == 2 || playerBWinCount == 2){
                     ChangeToScene(Scene.WinGame);
+                    return;
                 }
                 
                 if (ThiefController.instance.CatWinCG.activeInHierarchy){
@@ -123,6 +124,11 @@ public class GameManager : MonoBehaviour
                     if (round > 10){
                         ThiefController.instance.CatWinCG.SetActive(true);
                     }
+                }
+                break;
+            case Scene.WinGame:
+                if (Input.GetKeyDown("n")){
+                    ChangeToScene(Scene.Welcome);
                 }
                 break;
             default:
