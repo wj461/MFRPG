@@ -31,7 +31,8 @@ public class RTAController : MonoBehaviour
             cat.transform.position = new Vector3(cat.transform.position.x - 1, cat.transform.position.y, cat.transform.position.z);
         }
         if (Input.GetKeyDown("z")){
-            thief.transform.position = new Vector3(thief.transform.position.x - 1, thief.transform.position.y, thief.transform.position.z);
+            var thiefMove = thief.transform.position.x - (1f / GameManager.instance.round);
+            thief.transform.position = new Vector3(thiefMove, thief.transform.position.y, thief.transform.position.z);
         }
         Vector3 viewportPosition = mainCamera.WorldToViewportPoint(cat.transform.position);
 

@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,7 +21,10 @@ public class Item : MonoBehaviour
     }
     void Start()
     {
-        
+        TMP_Text text = transform.Find("cost")?.gameObject.GetComponent<TMP_Text>();
+        if (text != null){
+            text.text = _itemDTO.cost.ToString();
+        }
     }
 
     // Update is called once per frame

@@ -25,6 +25,7 @@ public class BagController : MonoBehaviour
     public Animator animator;
     public GameObject BagPanel;
     public TMP_Text BagText;
+    public GameObject pressNToEndAction;
 
     public GameObject cursorGameObject;
     public Tilemap tilemap;
@@ -128,9 +129,11 @@ public class BagController : MonoBehaviour
 
     public void ShowText(){
         BagPanel.SetActive(true);
+        pressNToEndAction.SetActive(true);
     }
     public void CloseText(){
         BagPanel.SetActive(false);
+        pressNToEndAction.SetActive(false);
     }
 
     public void Close(){

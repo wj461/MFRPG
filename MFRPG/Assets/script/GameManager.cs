@@ -88,21 +88,18 @@ public class GameManager : MonoBehaviour
                 }
                 break;
             case Scene.NewGame:
-                if (Input.GetKeyDown("a")){
-                    thisMatchThiefName = "A";
-                    ChangeToScene(Scene.InGame);
-                }
-                if (Input.GetKeyDown("b")){
-                    thisMatchThiefName = "B";
-                    ChangeToScene(Scene.InGame);
+                if (NewGameController.instance.isGuideOver){
+                    if (Input.GetKeyDown("a")){
+                        thisMatchThiefName = "A";
+                        ChangeToScene(Scene.InGame);
+                    }
+                    if (Input.GetKeyDown("b")){
+                        thisMatchThiefName = "B";
+                        ChangeToScene(Scene.InGame);
+                    }
                 }
                 break;
             case Scene.InGame:
-                // something temp work
-                if (Input.GetKeyDown("q")){
-                    instance.round = 9;
-                }
-                // not forget to del
                 if (playerAWinCount == 2 || playerBWinCount == 2){
                     ChangeToScene(Scene.WinGame);
                 }
